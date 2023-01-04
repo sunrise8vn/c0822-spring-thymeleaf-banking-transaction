@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>list of customers</title>
@@ -7,5 +7,34 @@
 </head>
 <body>
     <h1>List of customers</h1>
+
+    <div class="content">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Balance</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                <th:block th:each="item : ${customers}">
+                    <tr>
+                        <td th:text="${item.id}"></td>
+                        <td th:text="${item.fullName}"></td>
+                        <td th:text="${item.email}"></td>
+                        <td th:text="${item.phone}"></td>
+                        <td th:text="${item.balance}"></td>
+                        <td th:text="${item.address}"></td>
+                    </tr>
+                </th:block>
+
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

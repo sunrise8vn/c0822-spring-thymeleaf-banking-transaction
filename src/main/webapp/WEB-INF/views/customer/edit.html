@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Customer</title>
+    <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+    <h1>Update customer</h1>
+
+    <th:block th:if="${error == false}">
+        <form method="post" th:object="${customer}" >
+<!--            <div>-->
+<!--                <label>ID</label>-->
+<!--                <input type="text" th:field="*{id}">-->
+<!--            </div>-->
+            <div>
+                <label>Full Name</label>
+                <input type="text" th:field="*{fullName}">
+            </div>
+            <div>
+                <label>Email</label>
+                <input type="email" th:field="*{email}">
+            </div>
+            <div>
+                <label>Phone</label>
+                <input type="tel" th:field="*{phone}">
+            </div>
+            <div>
+                <label>Address</label>
+                <input type="text" th:field="*{address}">
+            </div>
+            <div>
+                <input type="submit" value="Update">
+            </div>
+        </form>
+    </th:block>
+
+    <th:block th:if="${error == true}">
+        <div>
+            <h1 th:text="${message}"></h1>
+        </div>
+    </th:block>
+
+</body>
+</html>
