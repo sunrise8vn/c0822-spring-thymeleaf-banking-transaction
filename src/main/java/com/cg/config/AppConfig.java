@@ -1,8 +1,6 @@
 package com.cg.config;
 
 
-import com.cg.service.CustomerServiceImpl;
-import com.cg.service.ICustomerService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;

@@ -1,5 +1,37 @@
 h1 {
-    color: red;
-    font-weight: bold;
-    font-size: 36px;
+    margin: 0;
+}
+
+header {
+    background-color: #299be4;
+    color: #fff;
+    padding: 15px;
+    height: 77px;
+}
+
+thead tr {
+    background-color: #4caf50;
+    color: #fff;
+}
+
+.text-right {
+    text-align: right;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    min-height: 75px;
+    padding: 10px;
+}
+
+.footer-success {
+    background-color: #d1e7dd;
+    color: #397358;
+}
+
+.footer-error {
+    background-color: #f8d7da;
+    color: #88252c;
 }

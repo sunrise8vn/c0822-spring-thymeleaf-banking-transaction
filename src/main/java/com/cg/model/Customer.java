@@ -21,7 +21,7 @@ public class Customer {
 
     private String phone;
 
-    @Column(precision = 12, scale = 0, nullable = false)
+    @Column(precision = 12, scale = 0, nullable = false, updatable = false)
     private BigDecimal balance;
 
     private String address;

@@ -3,38 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <title>list of customers</title>
+    <link rel="stylesheet" href="/assets/bootstrap/v5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/fontawesome/v5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
-    <h1>List of customers</h1>
-
-    <div class="content">
-        <table>
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Balance</th>
-                    <th>Address</th>
-                </tr>
-            </thead>
-            <tbody>
-
-                <th:block th:each="item : ${customers}">
+    <div class="container">
+        <header>
+            <div class="col-lg-12">
+                <div class="col-lg-6 float-start">
+                    <h1>List of customers</h1>
+                </div>
+                <div class="col-lg-6 float-start text-right">
+                    <a href="/histories/transfers">
+                        <button class="btn btn-outline-light">
+                            <i class="fas fa-bars"></i>
+                            Transfer History
+                        </button>
+                    </a>
+                    <a href="/customers/create">
+                        <button class="btn btn-outline-light">
+                            <i class="fas fa-plus"></i>
+                            Create
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </header>
+        <div class="content">
+            <table class="table table-hover">
+                <thead>
                     <tr>
-                        <td th:text="${item.id}"></td>
-                        <td th:text="${item.fullName}"></td>
-                        <td th:text="${item.email}"></td>
-                        <td th:text="${item.phone}"></td>
-                        <td th:text="${item.balance}"></td>
-                        <td th:text="${item.address}"></td>
+                        <th class="text-center">#</th>
+                        <th class="text-center">Full Name</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Phone</th>
+                        <th class="text-center">Balance</th>
+                        <th class="text-center">Address</th>
+                        <th class="text-center" colspan="5">Action</th>
                     </tr>
-                </th:block>
+                </thead>
+                <tbody>
+                    <th:block th:each="item : ${customers}">
+                        <tr>
+                            <td th:text="${item.id}" class="text-center"></td>
+                            <td th:text="${item.fullName}"></td>
+                            <td th:text="${item.email}" class="text-center"></td>
+                            <td th:text="${item.phone}" class="text-center"></td>
+                            <td th:text="${item.balance}" class="text-end"></td>
+                            <td th:text="${item.address}"></td>
+                            <td>
+                                <a th:href="@{/customers/edit/__${item.id}__}">
+                                    <button class="btn btn-outline-secondary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <a th:href="@{/customers/deposit/__${item.id}__}">
+                                    <button class="btn btn-outline-success">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <a th:href="@{/customers/withdraw/__${item.id}__}">
+                                    <button class="btn btn-outline-warning">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <a th:href="@{/customers/transfer/__${item.id}__}">
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                </a>
+                            </td>
+                            <td>
+                                <a th:href="@{/customers/delete/__${item.id}__}">
+                                    <button class="btn btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </a>
+                            </td>
+                        </tr>
+                    </th:block>
+                </tbody>
+            </table>
+        </div>
+        <footer>
 
-            </tbody>
-        </table>
+        </footer>
     </div>
 </body>
 </html>

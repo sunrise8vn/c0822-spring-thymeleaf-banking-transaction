@@ -1,7 +1,9 @@
 package com.cg.controller;
 
 import com.cg.model.Customer;
-import com.cg.service.ICustomerService;
+import com.cg.model.Deposit;
+import com.cg.service.customer.ICustomerService;
+import com.cg.service.deposit.IDepositService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,6 +23,9 @@ public class CustomerController {
 
     @Autowired
     private ICustomerService customerService;
+
+    @Autowired
+    private IDepositService depositService;
 
     @GetMapping
     public String showListPage(Model model) {
@@ -57,6 +62,25 @@ public class CustomerController {
         return "customer/edit";
     }
 
+    @GetMapping("/deposit/{customerId}")
+    public String showDepositPage(@PathVariable Long customerId, Model model) {
+
+        Optional<Customer> customerOptional = customerService.findById(customerId);
+
+        if (!customerOptional.isPresent()) {
+            model.addAttribute("error", true);
+            model.addAttribute("message", "Customer ID invalid");
+        }
+        else {
+            Customer customer = customerOptional.get();
+            model.addAttribute("error", null);
+            model.addAttribute("customer", customer);
+            model.addAttribute("deposit", new Deposit());
+        }
+
+        return "customer/deposit";
+    }
+
     @PostMapping("/create")
     public String create(Customer customer) {
 
@@ -74,5 +98,31 @@ public class CustomerController {
         customerService.save(customer);
 
         return "redirect:/customers";
+    }
+
+    @PostMapping("/deposit/{customerId}")
+    public String deposit(@PathVariable Long customerId, Deposit deposit, Model model) {
+
+        Optional<Customer> customerOptional = customerService.findById(customerId);
+
+        if (!customerOptional.isPresent()) {
+            model.addAttribute("error", true);
+            model.addAttribute("message", "Customer ID invalid");
+        }
+        else {
+            Customer customer = customerOptional.get();
+            BigDecimal currentBalance = customer.getBalance();
+            BigDecimal transactionAmount = deposit.getTransactionAmount();
+            BigDecimal newBalance = currentBalance.add(transactionAmount);
+            customer.setBalance(newBalance);
+
+            customerService.deposit(customer, deposit);
+
+            model.addAttribute("error", false);
+            model.addAttribute("customer", customer);
+            model.addAttribute("deposit", new Deposit());
+        }
+
+        return "customer/deposit";
     }
 }
