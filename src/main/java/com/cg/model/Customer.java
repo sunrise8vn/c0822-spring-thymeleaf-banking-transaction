@@ -30,6 +30,9 @@ public class Customer {
     @OneToMany
     private List<Deposit> deposits;
 
+    @OneToMany
+    private List<Transfer> transfers;
+
     public Customer() {
     }
 
@@ -41,6 +44,18 @@ public class Customer {
         this.balance = balance;
         this.address = address;
         this.deposits = deposits;
+    }
+
+    @Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", fullName='" + fullName + '\'' +
+                ", email='" + email + '\'' +
+                ", phone='" + phone + '\'' +
+                ", balance=" + balance +
+                ", address='" + address + '\'' +
+                '}';
     }
 
     public Long getId() {

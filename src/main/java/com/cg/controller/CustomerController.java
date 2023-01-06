@@ -2,6 +2,7 @@ package com.cg.controller;
 
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
+import com.cg.model.Transfer;
 import com.cg.service.customer.ICustomerService;
 import com.cg.service.deposit.IDepositService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -81,6 +83,28 @@ public class CustomerController {
         return "customer/deposit";
     }
 
+    @GetMapping("/transfer/{senderId}")
+    public String showTransferPage(@PathVariable Long senderId, Model model) {
+
+        Optional<Customer> senderOptional = customerService.findById(senderId);
+
+        if (!senderOptional.isPresent()) {
+            model.addAttribute("error", true);
+            model.addAttribute("message", "Sender ID invalid");
+        }
+        else {
+            List<Customer> recipients = customerService.findAllByIdNot(senderId);
+
+            Customer sender = senderOptional.get();
+            model.addAttribute("error", null);
+            model.addAttribute("sender", sender);
+            model.addAttribute("recipients", recipients);
+            model.addAttribute("transfer", new Transfer());
+        }
+
+        return "customer/transfer";
+    }
+
     @PostMapping("/create")
     public String create(Customer customer) {
 
@@ -125,4 +149,69 @@ public class CustomerController {
 
         return "customer/deposit";
     }
+
+    @PostMapping("/transfer/{senderId}")
+    public String transfer(@PathVariable Long senderId, Transfer transfer, Model model) {
+
+        Optional<Customer> senderOptional = customerService.findById(senderId);
+        Customer sender = null;
+
+        if (!senderOptional.isPresent()) {
+            model.addAttribute("error", true);
+            model.addAttribute("message", "Sender ID invalid");
+        }
+        else {
+            sender = senderOptional.get();
+            Long recipientId = transfer.getRecipient().getId();
+
+            if (recipientId.equals(sender.getId())) {
+                model.addAttribute("error", true);
+                model.addAttribute("message", "Sender not same Recipient");
+            }
+            else {
+                Optional<Customer> recipientOptional = customerService.findById(recipientId);
+
+                if (!recipientOptional.isPresent()) {
+                    model.addAttribute("error", true);
+                    model.addAttribute("message", "Recipient ID invalid");
+                }
+                else {
+                    BigDecimal currentSenderBalance = sender.getBalance();
+                    BigDecimal transferAmount = transfer.getTransferAmount();
+                    long fees = 10L;
+                    BigDecimal feesAmount = transferAmount.multiply(BigDecimal.valueOf(fees)).divide(BigDecimal.valueOf(100L));
+                    BigDecimal transactionAmount = transferAmount.add(feesAmount);
+
+                    if (currentSenderBalance.compareTo(transactionAmount) < 0) {
+                        model.addAttribute("error", true);
+                        model.addAttribute("message", "Sender balance not enough to transaction");
+                    }
+                    else {
+                        Customer recipient = recipientOptional.get();
+
+                        transfer.setId(null);
+                        transfer.setSender(sender);
+                        transfer.setRecipient(recipient);
+                        transfer.setFees(fees);
+                        transfer.setFeesAmount(feesAmount);
+                        transfer.setTransactionAmount(transactionAmount);
+
+                        customerService.transfer(transfer);
+
+                        model.addAttribute("error", false);
+                        sender.setBalance(sender.getBalance().subtract(transactionAmount));
+                    }
+                }
+            }
+        }
+
+        List<Customer> recipients = customerService.findAllByIdNot(senderId);
+
+        model.addAttribute("sender", sender);
+        model.addAttribute("recipients", recipients);
+        model.addAttribute("transfer", new Transfer());
+
+        return "customer/transfer";
+    }
+
 }
