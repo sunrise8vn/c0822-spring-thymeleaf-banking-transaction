@@ -1,13 +1,18 @@
 package com.cg.model;
 
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.util.List;
 
+
 @Entity
 @Table(name = "customers")
-public class Customer {
+public class Customer extends BaseEntity implements Validator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -112,5 +117,36 @@ public class Customer {
 
     public void setDeposits(List<Deposit> deposits) {
         this.deposits = deposits;
+    }
+
+    @Override
+    public boolean supports(Class<?> clazz) {
+        return Customer.class.isAssignableFrom(clazz);
+    }
+
+    @Override
+    public void validate(Object target, Errors errors) {
+        Customer customer = (Customer) target;
+
+        String fullName = customer.getFullName();
+        String email = customer.getEmail();
+
+        if (fullName.length() == 0) {
+            errors.rejectValue("fullName", "fullName.null");
+        }
+        else {
+            if (fullName.length() < 4 || fullName.length() > 25) {
+                errors.rejectValue("fullName", "fullName.length");
+            }
+        }
+
+        if (email.length() == 0) {
+            errors.rejectValue("email", "email.null");
+        }
+        else {
+            if (!email.matches("^[\\w]+@([\\w-]+\\.)+[\\w-]{2,6}$")) {
+                errors.rejectValue("email", "email.matches");
+            }
+        }
     }
 }

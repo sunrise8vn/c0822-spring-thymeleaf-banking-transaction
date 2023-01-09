@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Create Customer</title>
+    <title>Delete Customer</title>
     <link rel="stylesheet" href="/assets/bootstrap/v5.3.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/assets/fontawesome/v5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/assets/css/style.css">
@@ -12,7 +12,7 @@
         <header>
             <div class="col-lg-12">
                 <div class="col-lg-6 float-start">
-                    <h1>Create customer</h1>
+                    <h1>Delete customer</h1>
                 </div>
                 <div class="col-lg-6 float-start text-right">
                     <a href="/customers">
@@ -24,6 +24,7 @@
                 </div>
             </div>
         </header>
+
         <div class="content">
             <form method="post" th:object="${customer}" >
                 <div class="row mt-3">
@@ -47,12 +48,14 @@
                     </div>
                 </div>
                 <div class="row mt-3">
-                    <div class="col-lg-12">
-                        <button type="submit" class="btn btn-outline-primary">
-                            <i class="fas fa-plus"></i>
-                            Create
-                        </button>
-                    </div>
+                    <th:block th:if="*{id != null && deleted == false}">
+                        <div class="col-lg-12">
+                            <button type="submit" class="btn btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                                Delete
+                            </button>
+                        </div>
+                    </th:block>
                 </div>
             </form>
         </div>
@@ -62,7 +65,7 @@
         <div class="container">
             <th:block th:if="${error == false}">
                 <div>
-                    <h5>Successful create customer</h5>
+                    <h5>Successful delete customer</h5>
                 </div>
             </th:block>
 
@@ -72,7 +75,7 @@
                 </div>
                 <div>
                     <ul>
-                        <li th:each="err : ${#fields.errors('customer.*')}" th:text="${err}"></li>
+                        <li th:text="${message}"></li>
                     </ul>
                 </div>
             </th:block>

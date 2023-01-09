@@ -3,11 +3,14 @@ package com.cg.controller;
 import com.cg.model.Customer;
 import com.cg.model.Deposit;
 import com.cg.model.Transfer;
+import com.cg.model.dto.DepositCreateDTO;
 import com.cg.service.customer.ICustomerService;
 import com.cg.service.deposit.IDepositService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,7 +35,7 @@ public class CustomerController {
     @GetMapping
     public String showListPage(Model model) {
 
-        List<Customer> customers = customerService.findAll();
+        List<Customer> customers = customerService.findAllByDeletedIsFalse();
 
         model.addAttribute("customers", customers);
 
@@ -54,10 +57,19 @@ public class CustomerController {
         if (!customerOptional.isPresent()) {
             model.addAttribute("error", true);
             model.addAttribute("message", "Customer ID invalid");
+            model.addAttribute("customer", new Customer());
         }
         else {
             Customer customer = customerOptional.get();
-            model.addAttribute("error", false);
+
+            if (customer.getDeleted()) {
+                model.addAttribute("error", true);
+                model.addAttribute("message", "This Customer is suspended");
+            }
+            else {
+                model.addAttribute("error", null);
+            }
+
             model.addAttribute("customer", customer);
         }
 
@@ -77,7 +89,8 @@ public class CustomerController {
             Customer customer = customerOptional.get();
             model.addAttribute("error", null);
             model.addAttribute("customer", customer);
-            model.addAttribute("deposit", new Deposit());
+//            model.addAttribute("deposit", new Deposit());
+            model.addAttribute("depositCreateDTO", new DepositCreateDTO());
         }
 
         return "customer/deposit";
@@ -105,8 +118,44 @@ public class CustomerController {
         return "customer/transfer";
     }
 
+    @GetMapping("/delete/{id}")
+    public String showDeletePage(Model model, @PathVariable Long id) {
+
+        Optional<Customer> customerOptional = customerService.findById(id);
+
+        if (!customerOptional.isPresent()) {
+            model.addAttribute("error", true);
+            model.addAttribute("message", "Customer ID invalid");
+            model.addAttribute("customer", new Customer());
+        }
+        else {
+            Customer customer = customerOptional.get();
+
+            if (customer.getDeleted()) {
+                model.addAttribute("error", true);
+                model.addAttribute("message", "This Customer is suspended");
+            }
+            else {
+                model.addAttribute("error", null);
+            }
+
+            model.addAttribute("customer", customer);
+        }
+
+        return "customer/delete";
+    }
+
     @PostMapping("/create")
-    public String create(Customer customer) {
+    public String create(@Validated Customer customer, BindingResult bindingResult, Model model) {
+
+        new Customer().validate(customer, bindingResult);
+
+        if (bindingResult.hasFieldErrors()) {
+            model.addAttribute("error", true);
+            return "customer/create";
+        }
+
+        model.addAttribute("error", false);
 
         customer.setBalance(BigDecimal.ZERO);
         customerService.save(customer);
@@ -125,7 +174,7 @@ public class CustomerController {
     }
 
     @PostMapping("/deposit/{customerId}")
-    public String deposit(@PathVariable Long customerId, Deposit deposit, Model model) {
+    public String deposit(@PathVariable Long customerId, DepositCreateDTO depositCreateDTO, BindingResult bindingResult, Model model) {
 
         Optional<Customer> customerOptional = customerService.findById(customerId);
 
@@ -134,15 +183,30 @@ public class CustomerController {
             model.addAttribute("message", "Customer ID invalid");
         }
         else {
+            new DepositCreateDTO().validate(depositCreateDTO, bindingResult);
+
+            if (bindingResult.hasFieldErrors()) {
+                model.addAttribute("error", true);
+                model.addAttribute("message", null);
+                model.addAttribute("customer", customerOptional.get());
+                return "customer/deposit";
+            }
+
             Customer customer = customerOptional.get();
             BigDecimal currentBalance = customer.getBalance();
-            BigDecimal transactionAmount = deposit.getTransactionAmount();
+            BigDecimal transactionAmount = BigDecimal.valueOf(Long.parseLong(depositCreateDTO.getTransactionAmount()));
             BigDecimal newBalance = currentBalance.add(transactionAmount);
             customer.setBalance(newBalance);
+
+            Deposit deposit = new Deposit();
+            deposit.setId(null);
+            deposit.setCustomer(customer);
+            deposit.setTransactionAmount(transactionAmount);
 
             customerService.deposit(customer, deposit);
 
             model.addAttribute("error", false);
+            model.addAttribute("message", null);
             model.addAttribute("customer", customer);
             model.addAttribute("deposit", new Deposit());
         }
@@ -212,6 +276,28 @@ public class CustomerController {
         model.addAttribute("transfer", new Transfer());
 
         return "customer/transfer";
+    }
+
+    @PostMapping("/delete/{customerId}")
+    public String softDelete(@PathVariable Long customerId, Model model) {
+
+        Optional<Customer> customerOptional = customerService.findById(customerId);
+
+        if (!customerOptional.isPresent()) {
+            model.addAttribute("error", true);
+            model.addAttribute("message", "Customer ID invalid");
+            model.addAttribute("customer", new Customer());
+        }
+        else {
+            Customer customer = customerOptional.get();
+            customer.setDeleted(true);
+            customerService.save(customer);
+
+            model.addAttribute("error", false);
+            model.addAttribute("customer", customer);
+        }
+
+        return "customer/delete";
     }
 
 }

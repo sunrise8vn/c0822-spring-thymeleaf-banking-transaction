@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface ICustomerService extends IGeneralService<Customer> {
 
+    List<Customer> findAllByDeletedIsFalse();
+
     List<Customer> findAllByIdNot(Long id);
 
     void deposit(Customer customer, Deposit deposit);

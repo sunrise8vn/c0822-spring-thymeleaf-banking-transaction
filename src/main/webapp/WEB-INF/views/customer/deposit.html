@@ -25,38 +25,36 @@
             </div>
         </header>
         <div class="content">
-            <th:block th:if="${error != true}">
-                <form method="post" th:object="${customer}">
-                    <div class="row mt-3">
-                        <div class="col-lg-6">
-                            <label>Customer ID</label>
-                            <input type="text" class="form-control"  th:field="*{id}" readonly>
-                        </div>
-                        <div class="col-lg-6">
-                            <label>Full Name</label>
-                            <input type="text" class="form-control"  th:field="*{fullName}" readonly>
-                        </div>
+            <form method="post" th:object="${customer}">
+                <div class="row mt-3">
+                    <div class="col-lg-6">
+                        <label>Customer ID</label>
+                        <input type="text" class="form-control"  th:field="*{id}" readonly>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-lg-6">
-                            <label>Balance</label>
-                            <input type="text" class="form-control"  th:field="*{balance}" readonly>
-                        </div>
-                        <div class="col-lg-6" th:object="${deposit}">
-                            <label>Transaction Amount</label>
-                            <input type="text" class="form-control" th:field="*{transactionAmount}">
-                        </div>
+                    <div class="col-lg-6">
+                        <label>Full Name</label>
+                        <input type="text" class="form-control"  th:field="*{fullName}" readonly>
                     </div>
-                    <div class="row mt-3">
-                        <div class="col-lg-12">
-                            <button type="submit" class="btn btn-outline-success">
-                                <i class="fas fa-plus"></i>
-                                Deposit
-                            </button>
-                        </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-lg-6">
+                        <label>Balance</label>
+                        <input type="text" class="form-control"  th:field="*{balance}" readonly>
                     </div>
-                </form>
-            </th:block>
+                    <div class="col-lg-6" th:object="${depositCreateDTO}">
+                        <label>Transaction Amount</label>
+                        <input type="text" class="form-control" th:field="*{transactionAmount}">
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-lg-12">
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="fas fa-plus"></i>
+                            Deposit
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -73,9 +71,17 @@
                     <h5>Error messages:</h5>
                 </div>
                 <div>
-                    <ul>
-                        <li th:text="${message}"></li>
-                    </ul>
+                    <th:block th:if="${message != null}">
+                        <ul>
+                            <li th:text="${message}"></li>
+                        </ul>
+                    </th:block>
+
+                    <th:block th:if="${#fields.errors('depositCreateDTO.*').size() > 0}">
+                        <ul>
+                            <li th:each="err : ${#fields.errors('depositCreateDTO.*')}" th:text="${err}"></li>
+                        </ul>
+                    </th:block>
                 </div>
             </th:block>
         </div>
